@@ -1,4 +1,5 @@
 import http from 'node:http';
+import os from 'node:os';
 import {readFile} from 'node:fs/promises';
 import {projectSolid} from './geometry.js';
 import {decorateScene} from './scene.js';
@@ -33,4 +34,9 @@ const server = http.createServer(async (req,res)=> {
     res.writeHead(200, {'Content-Type':`${asset[1]}; charset=utf-8`}); res.end(content);
   } catch { res.writeHead(500); res.end('Impossibile caricare la pagina.'); }
 });
-server.listen(Number(process.env.PORT || 3000), '127.0.0.1', ()=>console.log(`Apri http://localhost:${server.address().port}`));
+const host = process.env.HOST || '127.0.0.1', port = Number(process.env.PORT || 3000);
+server.listen(port, host, ()=>{
+  const lan = Object.values(os.networkInterfaces()).flat().filter(i=>i && i.family === 'IPv4' && !i.internal).map(i=>i.address);
+  const addresses = host === '0.0.0.0' || host === '::' ? lan : [host];
+  console.log(`Apri ${(addresses.length ? addresses : [host]).map(a=>`http://${a}:${port}`).join('  ')}`);
+});
