@@ -12,6 +12,19 @@ npm start
 
 Aprire http://localhost:3000. Per i controlli geometrici: `npm test`.
 
+## Installazione sul Raspberry Pi
+
+Con Node.js 18 o successivo già presente (sul Raspberry Pi OS bookworm c’è Node 20), il progetto si porta sul dispositivo con git e gira come servizio systemd:
+
+```sh
+git clone https://github.com/martale1/DisegnoTecnico.git ~/DisegnoTecnico
+sudo install -m 0644 ~/DisegnoTecnico/deploy/disegno.service /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable --now disegno
+```
+
+Il servizio usa `HOST=0.0.0.0` e `PORT=3001` (la 3000 può essere occupata da altri programmi) e risponde su `http://<ip-del-raspberry>:3001`. Per aggiornare: `git pull` nella cartella del progetto e `sudo systemctl restart disegno`. Non servono virtualenv Python: l’applicazione è solo Node.js.
+
 Solidi: parallelepipedo, cubo, piramide retta a base rettangolare e prisma triangolare. Dimensioni da 10 a 300 unità, angolo da 10° a 80°, profondità ridotta a ½, ¾ o intera. Spigoli nascosti tratteggiati, assi e download SVG. Il disegno si adatta alla finestra e non ha scala di stampa fissa.
 
 Il backend espone `POST /api/project` con parametri JSON `shape`, `width`, `depth`, `height`, `angle`, `reduction`. Restituisce vertici proiettati, facce visibili e spigoli. Formula: X = x + k y cos(α), Y = −z − k y sin(α). La visibilità è calcolata con le normali delle facce per questi solidi convessi.
