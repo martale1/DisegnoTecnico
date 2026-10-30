@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="it">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Disegno · Laboratorio di assonometria</title><link rel="stylesheet" href="/style.css"><script type="module" src="/app.js"></script></head>
+<body>
+<header><a class="brand" href="/">◈ <span>Disegno</span></a><span class="tag">LABORATORIO DI GEOMETRIA</span></header>
+<main>
+<section class="intro"><div><p class="eyebrow">DAL SOLIDO ALLA TAVOLA</p><h1>Componi le tue proiezioni.</h1><p>Più solidi, sei viste ortogonali e due assonometrie in un unico progetto.</p></div><button id="export" disabled>↓ Esporta tavola SVG</button></section>
+<div class="workspace"><aside><form id="controls">
+<div class="section-title"><span>▦</span><h2>Scenari pronti</h2></div>
+<div class="scenarios">
+<button type="button" data-scenario="intersection"><strong>Piramide attraverso la lastra</strong><span>Come nella foto: solidi intersecati e colorati</span></button>
+<button type="button" data-scenario="tower"><strong>Torre di cubi</strong><span>Tre cubi impilati a contatto</span></button>
+<button type="button" data-scenario="pyramid"><strong>Piramide sul piedistallo</strong><span>Base, cubo e piramide centrati</span></button>
+<button type="button" data-scenario="row"><strong>Solidi affiancati</strong><span>Cubo, piramide e prisma distanziati</span></button>
+<button type="button" data-scenario="steps"><strong>Scalinata</strong><span>Tre blocchi vicini di altezze diverse</span></button>
+<button type="button" data-scenario="house"><strong>Casa e torre</strong><span>Un tetto sul blocco, una torre accanto</span></button>
+</div>
+<p class="hint">Carica una composizione e modifica liberamente i solidi. Lo scenario sostituisce la scena attuale.</p>
+<button type="button" id="undo-scenario" disabled>Ripristina scena precedente</button>
+<p id="scenario-status" role="status" class="hint"></p>
+<div class="section-title"><span>＋</span><h2>Composizione</h2></div>
+<label>Solido attivo <select id="objects" aria-label="Solido attivo"></select></label>
+<div class="actions"><button type="button" id="add">+ Aggiungi</button><button type="button" id="duplicate">Duplica</button><button type="button" id="remove">Elimina</button></div>
+<div class="section-title"><span>01</span><h2>Scegli il solido</h2></div>
+<div class="shapes"><button type="button" data-shape="box" class="selected" aria-pressed="true">▱<span>Parallelepipedo</span></button><button type="button" data-shape="cube" aria-pressed="false">◇<span>Cubo</span></button><button type="button" data-shape="pyramid" aria-pressed="false">△<span>Piramide</span></button><button type="button" data-shape="prism" aria-pressed="false">▰<span>Prisma triangolare</span></button></div>
+<div class="section-title"><span>02</span><h2>Dimensioni</h2></div><p class="hint">Misure in unità di disegno</p>
+<label>Larghezza <input name="width" type="number" min="10" max="300" value="120" required></label>
+<label>Profondità <input name="depth" type="number" min="10" max="300" value="90" required></label>
+<label>Altezza <input name="height" type="number" min="10" max="300" value="140" required></label>
+<div class="section-title"><span>↗</span><h2>Posizione e rotazione</h2></div>
+<label>Posizione X <input name="x" type="number" min="-1000" max="1000" value="0" required></label>
+<label>Posizione Y <input name="y" type="number" min="-1000" max="1000" value="0" required></label>
+<label>Posizione Z <input name="z" type="number" min="-1000" max="1000" value="0" required></label>
+<label>Rotazione su Z (°) <input name="rotation" type="number" min="-360" max="360" value="0" required></label>
+<label>Colore del solido <input id="color" type="color" value="#d5bb55"></label>
+<div class="section-title"><span>03</span><h2>Proiezione</h2></div>
+<label>Vista <select id="view"><option value="construction">Pianta → Cavaliera</option><option value="sheet">Tavola · 4 viste</option><option value="all" selected>Tutte · 8 viste</option><option value="front">Prospetto</option><option value="top">Pianta</option><option value="right">Profilo destro</option><option value="left">Profilo sinistro</option><option value="back">Retro</option><option value="bottom">Dal basso</option><option value="cavalier">Cavaliera</option><option value="isometric">Isometrica</option></select></label>
+<label>Angolo di fuga <output id="angle-value">45°</output></label><input name="angle" aria-label="Angolo di fuga" type="range" min="10" max="80" value="45">
+<label>Riduzione profondità <select name="reduction"><option value="0.5" selected>½ · Cavaliera ridotta</option><option value="0.75">¾ · Personalizzata</option><option value="1">1 · Cavaliera intera</option></select></label>
+<label class="check"><input id="hidden" type="checkbox" checked> Spigoli nascosti</label><label class="check"><input id="axes" type="checkbox" checked> Assi di riferimento</label>
+<label class="check"><input id="filled" type="checkbox" checked> Facce colorate</label>
+<label class="check"><input id="connections" type="checkbox" checked> Linee di collegamento</label>
+<div id="construction-options" hidden><label>Segui un punto <select id="construction-point"><option value="all">Tutti i punti</option></select></label><p class="hint">La pianta riporta X sul piano di base; la fuga riporta la profondità ridotta; la verticale aggiunge l’altezza. Le lettere identificano gli stessi vertici nelle due viste.</p></div>
+<p class="hint">Scegli Pianta → Cavaliera per la costruzione come nella foto, oppure Tutte · 8 viste per la tavola completa.</p>
+<button id="reset" type="button" class="reset">Ripristina valori</button>
+</form></aside>
+<section class="drawing"><div class="drawing-top"><span><i></i> TAVOLA DI DISEGNO</span><span id="solid-name">Parallelepipedo</span></div><div class="canvas"><svg id="drawing" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Assonometria del solido selezionato" viewBox="0 0 800 600"></svg></div><div class="drawing-bottom"><span id="dimensions"></span><span>PROIEZIONE PARALLELA</span></div><p id="error" role="alert"></p></section></div>
+<footer><strong>Componi nello spazio.</strong> Affianca, impila o interseca i solidi con X, Y e Z. Nello scenario della foto, seleziona la lastra e cambia Z per farla attraversare alla piramide a diverse altezze. Le facce si coprono secondo la profondità e i tratti nascosti diventano tratteggiati. La scena viene conservata in questo browser. L’esportazione non ha una scala di stampa fissa.</footer>
+</main></body></html>
+
+
