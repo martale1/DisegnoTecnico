@@ -1,13 +1,13 @@
 export function projectSolid(input = {}) {
   const shape = input.shape ?? 'box';
-  if (!['box', 'cube', 'pyramid', 'prism'].includes(shape)) throw new Error('Solido non supportato.');
+  if (!['box', 'cube', 'pyramid', 'prism', 'hexprism'].includes(shape)) throw new Error('Solido non supportato.');
   const read = (key, fallback, min, max) => {
     const n = Number(input[key] ?? fallback);
     if (!Number.isFinite(n) || n < min || n > max) throw new Error(`${key}: inserire un numero tra ${min} e ${max}.`);
     return n;
   };
   const w = read('width', 120, 10, 300);
-  const d = shape === 'cube' ? w : read('depth', 90, 10, 300);
+  const d = shape === 'cube' ? w : shape === 'hexprism' ? w * Math.sqrt(3) / 2 : read('depth', 90, 10, 300);
   const h = shape === 'cube' ? w : read('height', 140, 10, 300);
   const angle = read('angle', 45, 10, 80) * Math.PI / 180;
   const reduction = read('reduction', 0.5, 0.1, 1);
@@ -18,6 +18,11 @@ export function projectSolid(input = {}) {
   } else if (shape === 'prism') {
     vertices = [[0,0,0],[w,0,0],[w/2,0,h],[0,d,0],[w,d,0],[w/2,d,h]];
     faces = [[0,1,2],[5,4,3],[0,3,4,1],[1,4,5,2],[2,5,3,0]];
+  } else if (shape === 'hexprism') {
+    const r = w / 2;
+    const ring = Array.from({length: 6}, (_, i) => { const a = i * Math.PI / 3; return [w / 2 + r * Math.cos(a), d / 2 + r * Math.sin(a), 0]; });
+    vertices = [...ring, ...ring.map(([x, y]) => [x, y, h])];
+    faces = [[5,4,3,2,1,0],[6,7,8,9,10,11], ...ring.map((_, i) => [i, (i + 1) % 6, 6 + (i + 1) % 6, 6 + i])];
   } else {
     vertices = [[0,0,0],[w,0,0],[w,d,0],[0,d,0],[0,0,h],[w,0,h],[w,d,h],[0,d,h]];
     faces = [[3,2,1,0],[0,1,5,4],[1,2,6,5],[2,3,7,6],[3,0,4,7],[4,5,6,7]];
@@ -42,13 +47,20 @@ export function projectSolid(input = {}) {
     return [cx*Math.cos(rotation)-cy*Math.sin(rotation)+w/2+translation[0],cx*Math.sin(rotation)+cy*Math.cos(rotation)+d/2+translation[1],z+translation[2]];
   });
   const edges = new Map();
-  const visibleFaces = [];
+  const visibleFaces = [], shades = [];
+  // Luce fissa dall’alto e davanti: la faccia orizzontale resta la più chiara.
+  const light = [-0.35, -0.55, 0.76];
   faces.forEach(face => {
     const a = vertices[face[0]], b = vertices[face[1]], c = vertices[face[2]];
     const u = b.map((v,i)=>v-a[i]), v = c.map((v,i)=>v-a[i]);
     const normal = [u[1]*v[2]-u[2]*v[1],u[2]*v[0]-u[0]*v[2],u[0]*v[1]-u[1]*v[0]];
     const visible = normal.reduce((s,n,i)=>s+n*view[i],0) > 1e-8;
-    if (visible) visibleFaces.push(face);
+    if (visible) {
+      visibleFaces.push(face);
+      const length = Math.hypot(...normal) || 1;
+      const lightDot = (normal[0]*light[0]+normal[1]*light[1]+normal[2]*light[2]) / length;
+      shades.push(Math.round((0.72 + 0.18 * (lightDot + 1)) * 1000) / 1000);
+    }
     face.forEach((a,i)=> {
       const b = face[(i+1)%face.length], key = [a,b].sort((a,b)=>a-b).join('-');
       const edge = edges.get(key) ?? {a,b,visible:false};
@@ -56,5 +68,5 @@ export function projectSolid(input = {}) {
       edges.set(key,edge);
     });
   });
-  return { points: vertices.map(project), depths: vertices.map(p=>p.reduce((s,n,i)=>s+n*view[i],0)), edges: [...edges.values()], faces: visibleFaces, dimensions: {width:w,depth:d,height:h}, axes: [[0,0,0],[60,0,0],[0,60,0],[0,0,60]].map(project) };
+  return { points: vertices.map(project), depths: vertices.map(p=>p.reduce((s,n,i)=>s+n*view[i],0)), edges: [...edges.values()], faces: visibleFaces, shades, dimensions: {width:w,depth:d,height:h}, axes: [[0,0,0],[60,0,0],[0,60,0],[0,0,60]].map(project) };
 }

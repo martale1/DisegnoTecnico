@@ -14,6 +14,7 @@
 <button type="button" data-scenario="row"><strong>Solidi affiancati</strong><span>Cubo, piramide e prisma distanziati</span></button>
 <button type="button" data-scenario="steps"><strong>Scalinata</strong><span>Tre blocchi vicini di altezze diverse</span></button>
 <button type="button" data-scenario="house"><strong>Casa e torre</strong><span>Un tetto sul blocco, una torre accanto</span></button>
+<button type="button" data-scenario="hexbox"><strong>Esagono sul parallelepipedo</strong><span>Prisma esagonale impilato su un blocco</span></button>
 </div>
 <p class="hint">Carica una composizione e modifica liberamente i solidi. Lo scenario sostituisce la scena attuale.</p>
 <button type="button" id="undo-scenario" disabled>Ripristina scena precedente</button>
@@ -22,7 +23,7 @@
 <label>Solido attivo <select id="objects" aria-label="Solido attivo"></select></label>
 <div class="actions"><button type="button" id="add">+ Aggiungi</button><button type="button" id="duplicate">Duplica</button><button type="button" id="remove">Elimina</button></div>
 <div class="section-title"><span>01</span><h2>Scegli il solido</h2></div>
-<div class="shapes"><button type="button" data-shape="box" class="selected" aria-pressed="true">▱<span>Parallelepipedo</span></button><button type="button" data-shape="cube" aria-pressed="false">◇<span>Cubo</span></button><button type="button" data-shape="pyramid" aria-pressed="false">△<span>Piramide</span></button><button type="button" data-shape="prism" aria-pressed="false">▰<span>Prisma triangolare</span></button></div>
+<div class="shapes"><button type="button" data-shape="box" class="selected" aria-pressed="true">▱<span>Parallelepipedo</span></button><button type="button" data-shape="cube" aria-pressed="false">◇<span>Cubo</span></button><button type="button" data-shape="pyramid" aria-pressed="false">△<span>Piramide</span></button><button type="button" data-shape="prism" aria-pressed="false">▰<span>Prisma triangolare</span></button><button type="button" data-shape="hexprism" aria-pressed="false">⬡<span>Prisma esagonale</span></button></div>
 <div class="section-title"><span>02</span><h2>Dimensioni</h2></div><p class="hint">Misure in unità di disegno</p>
 <label>Larghezza <input name="width" type="number" min="10" max="300" value="120" required></label>
 <label>Profondità <input name="depth" type="number" min="10" max="300" value="90" required></label>

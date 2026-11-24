@@ -49,7 +49,7 @@ export function decorateScene(solids){
  const faces=[];
  solids.forEach((s,si)=>s.faces.forEach((indices,fi)=>{
   const poly=indices.map(i=>s.points[i]);if(area(poly)<EPS)return;
-  faces.push({si,fi,poly,box:bounds(poly),planes:planes(poly),depth:depthPlane(poly,indices.map(i=>s.depths[i]))});
+  faces.push({si,fi,poly,box:bounds(poly),planes:planes(poly),depth:depthPlane(poly,indices.map(i=>s.depths[i])),shade:s.shades?.[fi]??fi});
  }));
  solids.forEach(s=>{s.surfaces=[];s.segments=[];});
  for(const face of faces){
@@ -64,7 +64,7 @@ export function decorateScene(solids){
    const cuts=coplanar?other.planes:[...other.planes,difference];
    fragments=fragments.flatMap(p=>subtract(p,cuts));if(!fragments.length)break;
   }
-  fragments.forEach(points=>solids[face.si].surfaces.push({points,shade:face.fi}));
+  fragments.forEach(points=>solids[face.si].surfaces.push({points,shade:face.shade}));
  }
  function segment(a,b,da,db,si,initialVisible=true,intersection=false){
   if(Math.hypot(a[0]-b[0],a[1]-b[1])<EPS)return;

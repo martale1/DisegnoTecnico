@@ -1,5 +1,5 @@
 const form=document.querySelector('#controls'),svg=document.querySelector('#drawing');
-const names={box:'Parallelepipedo',cube:'Cubo',pyramid:'Piramide',prism:'Prisma triangolare'};
+const names={box:'Parallelepipedo',cube:'Cubo',pyramid:'Piramide',prism:'Prisma triangolare',hexprism:'Prisma esagonale'};
 const titles={front:'Prospetto',right:'Profilo destro',top:'Pianta',cavalier:'Cavaliera',back:'Retro',left:'Profilo sinistro',bottom:'Dal basso',isometric:'Isometrica'};
 const reductionLabel=value=>value===.5?'½':value===.75?'¾':value===1?'1':String(value);
 const fields=['width','depth','height','x','y','z','rotation'];
@@ -12,6 +12,7 @@ const scenarios={
  pyramid:{name:'Piramide sul piedistallo',solids:[solid('box',160,160,35),solid('cube',110,110,110,25,25,35),solid('pyramid',110,110,100,25,25,145)]},
  row:{name:'Solidi affiancati',solids:[solid('cube',90,90,90),solid('pyramid',100,90,130,120),solid('prism',100,90,110,250)]},
  steps:{name:'Scalinata',solids:[solid('box',75,120,45),solid('box',75,120,90,75),solid('box',75,120,135,150)]},
+ hexbox:{name:'Esagono sul parallelepipedo',view:'cavalier',solids:[{...solid('box',160,160,40),color:'#d5bb55'},{...solid('hexprism',140,121.24,120,10,19.38,40),color:'#c95a79'}]},
  house:{name:'Casa e torre',solids:[solid('box',140,110,90),solid('prism',140,110,65,0,0,90),solid('box',60,70,170,175,20),solid('pyramid',60,70,55,175,20,170)]}
 };
 let previousScene;
@@ -20,16 +21,16 @@ function node(tag,attrs,text){const el=document.createElementNS('http://www.w3.o
 function sync(){
  const s=solids[active];fields.forEach(k=>form.elements[k].value=s[k]);
  document.querySelector('#color').value=s.color??(s.shape==='pyramid'?'#c95a79':'#d5bb55');
- form.elements.depth.disabled=form.elements.height.disabled=s.shape==='cube';
+ form.elements.depth.disabled=s.shape==='cube'||s.shape==='hexprism';form.elements.height.disabled=s.shape==='cube';
  document.querySelectorAll('[data-shape]').forEach(b=>{const on=b.dataset.shape===s.shape;b.classList.toggle('selected',on);b.setAttribute('aria-pressed',on);});
  const list=document.querySelector('#objects');list.replaceChildren();solids.forEach((s,i)=>{const o=document.createElement('option');o.value=i;o.textContent=`${i+1} · ${names[s.shape]}`;list.append(o);});list.value=active;
  document.querySelector('#remove').disabled=solids.length===1;document.querySelector('#add').disabled=document.querySelector('#duplicate').disabled=solids.length===30;
  const pointSelect=document.querySelector('#construction-point'),previous=pointSelect.value;pointSelect.replaceChildren();
  const all=document.createElement('option');all.value='all';all.textContent='Tutti i punti';pointSelect.append(all);
- solids.forEach((s,si)=>{const count=s.shape==='pyramid'?5:s.shape==='prism'?6:8;for(let vi=0;vi<count;vi++){const o=document.createElement('option');o.value=`${si}:${vi}`;o.textContent=`${si+1}${String.fromCharCode(65+vi)} · ${names[s.shape]}`;pointSelect.append(o);}});
+ solids.forEach((s,si)=>{const count=s.shape==='pyramid'?5:s.shape==='prism'?6:s.shape==='hexprism'?12:8;for(let vi=0;vi<count;vi++){const o=document.createElement('option');o.value=`${si}:${vi}`;o.textContent=`${si+1}${String.fromCharCode(65+vi)} · ${names[s.shape]}`;pointSelect.append(o);}});
  pointSelect.value=[...pointSelect.options].some(o=>o.value===previous)?previous:'all';
 }
-function capture(){if(!form.checkValidity())return false;fields.forEach(k=>solids[active][k]=Number(form.elements[k].value));solids[active].color=document.querySelector('#color').value;if(solids[active].shape==='cube')solids[active].depth=solids[active].height=solids[active].width;return true;}
+function capture(){if(!form.checkValidity())return false;fields.forEach(k=>solids[active][k]=Number(form.elements[k].value));solids[active].color=document.querySelector('#color').value;if(solids[active].shape==='cube')solids[active].depth=solids[active].height=solids[active].width;else if(solids[active].shape==='hexprism')solids[active].depth=Math.round(solids[active].width*Math.sqrt(3)/2*100)/100;return true;}
 // Punti in cui gli spigoli di un solido attraversano le facce visibili di un altro
 // (nel quadrato piccolo della pianta finiscono gli spigoli della piramide sulla lastra).
 function constructionExtras(world,views){
@@ -107,7 +108,7 @@ function renderConstruction(){
   if(document.querySelector('#filled').checked)current[key].forEach((s,si)=>{
    const color=solids[si]?.color??'#d5bb55';
    const rgb=/^#[0-9a-f]{6}$/i.test(color)?[1,3,5].map(i=>parseInt(color.slice(i,i+2),16)):[130,170,140];
-   (s.surfaces??[]).forEach(f=>{const factor=[.76,1.08,1,.88][f.shade%4];faces.append(node('polygon',{points:f.points.map(p=>map(p).join(',')).join(' '),fill:`rgb(${rgb.map(v=>Math.min(255,Math.round(v*factor))).join(',')})`,'fill-opacity':.25}));});
+   (s.surfaces??[]).forEach(f=>{const factor=f.shade??1;faces.append(node('polygon',{points:f.points.map(p=>map(p).join(',')).join(' '),fill:`rgb(${rgb.map(v=>Math.min(255,Math.round(v*factor))).join(',')})`,'fill-opacity':.25}));});
   });
  });
  // Facce sotto le linee di costruzione, spigoli sopra: tutte le linee restano leggibili.
@@ -145,7 +146,7 @@ function render(){
   if(document.querySelector('#filled').checked)current[key].forEach((s,si)=>{
    const color=solids[si]?.color??(solids[si]?.shape==='pyramid'?'#c95a79':'#d5bb55');
    const rgb=/^#[0-9a-f]{6}$/i.test(color)?[1,3,5].map(i=>parseInt(color.slice(i,i+2),16)):[130,170,140];
-   (s.surfaces??[]).forEach(face=>{const factor=[.76,1.08,1,.88][face.shade%4];const fill=`rgb(${rgb.map(v=>Math.min(255,Math.round(v*factor))).join(',')})`;g.append(node('polygon',{points:face.points.map(p=>map(p).join(',')).join(' '),fill}));});
+   (s.surfaces??[]).forEach(face=>{const factor=face.shade??1;const fill=`rgb(${rgb.map(v=>Math.min(255,Math.round(v*factor))).join(',')})`;g.append(node('polygon',{points:face.points.map(p=>map(p).join(',')).join(' '),fill}));});
   });
   const edges=[];current[key].forEach((s,si)=>{if(s.segments){s.segments.forEach(e=>edges.push({...e,a:map(e.a),b:map(e.b),si}));}else{const pts=s.points.map(map);s.edges.forEach(e=>edges.push({a:pts[e.a],b:pts[e.b],visible:e.visible,si}));}});
   edges.sort((a,b)=>Number(a.visible)-Number(b.visible));edges.forEach(e=>{if(!e.visible&&!document.querySelector('#hidden').checked)return;if(Math.hypot(e.a[0]-e.b[0],e.a[1]-e.b[1])<.01)return;line(e.a,e.b,{stroke:e.visible?'#394738':'#7c806a','stroke-width':e.visible?1.5:.8,'stroke-dasharray':e.visible?'none':'5 4'});});

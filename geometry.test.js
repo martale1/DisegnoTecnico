@@ -11,10 +11,23 @@ test('Il piano frontale conserva misure e la profondità viene ridotta',()=>{
   assert.equal(result.edges.filter(e=>!e.visible).length,3);
 });
 test('Topologia dei solidi e spigoli unici',()=>{
-  for(const [shape,vertices,edges] of [['cube',8,12],['pyramid',5,8],['prism',6,9]]){
+  for(const [shape,vertices,edges] of [['cube',8,12],['pyramid',5,8],['prism',6,9],['hexprism',12,18]]){
     const result=projectSolid({shape});assert.equal(result.points.length,vertices);assert.equal(result.edges.length,edges);
   }
   assert.deepEqual(projectSolid({shape:'cube',width:70}).dimensions,{width:70,depth:70,height:70});
+});
+test('Il prisma esagonale ha base regolare e profondità derivata',()=>{
+  const plan=projectSolid({shape:'hexprism',width:100,height:80,projection:'top'});
+  const xs=plan.points.map(p=>p[0]),ys=plan.points.map(p=>p[1]);
+  assert.equal(plan.points.length,12);
+  assert.equal(plan.edges.length,18);
+  assert.ok(Math.abs(Math.max(...xs)-100)<1e-9);
+  assert.ok(Math.abs(Math.min(...xs))<1e-9);
+  assert.ok(Math.abs((Math.max(...ys)-Math.min(...ys))-100*Math.sqrt(3)/2)<1e-9);
+  assert.ok(Math.abs(plan.dimensions.depth-100*Math.sqrt(3)/2)<1e-9);
+  const front=projectSolid({shape:'hexprism',width:100,depth:999,height:80,projection:'front'});
+  assert.equal(Math.min(...front.points.map(p=>p[1])),-80);
+  assert.ok(Math.abs(Math.max(...front.points.map(p=>p[1])))<1e-9);
 });
 test('Rifiuta parametri fuori intervallo',()=>{
   for(const input of [{shape:'sphere'},{width:0},{height:'abc'},{angle:90},{reduction:2}])assert.throws(()=>projectSolid(input));
