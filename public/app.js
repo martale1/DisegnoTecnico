@@ -12,7 +12,8 @@ const scenarios={
  pyramid:{name:'Piramide sul piedistallo',solids:[solid('box',160,160,35),solid('cube',110,110,110,25,25,35),solid('pyramid',110,110,100,25,25,145)]},
  row:{name:'Solidi affiancati',solids:[solid('cube',90,90,90),solid('pyramid',100,90,130,120),solid('prism',100,90,110,250)]},
  steps:{name:'Scalinata',solids:[solid('box',75,120,45),solid('box',75,120,90,75),solid('box',75,120,135,150)]},
- hexbox:{name:'Esagono sul parallelepipedo',view:'cavalier',solids:[{...solid('box',160,160,40),color:'#d5bb55'},{...solid('hexprism',140,121.24,120,10,19.38,40),color:'#c95a79'}]},
+ hexbox:{name:'Esagono nel parallelepipedo',view:'sheet3',solids:[{...solid('box',260,260,110),color:'#d5bb55'},{...solid('hexprism',140,121.24,300,60,69.38,-60),color:'#c95a79'}]},
+ hexstack:{name:'Esagono sul parallelepipedo',view:'sheet3',solids:[{...solid('box',260,260,110),color:'#d5bb55'},{...solid('hexprism',140,121.24,140,60,69.38,110),color:'#c95a79'}]},
  house:{name:'Casa e torre',solids:[solid('box',140,110,90),solid('prism',140,110,65,0,0,90),solid('box',60,70,170,175,20),solid('pyramid',60,70,55,175,20,170)]}
 };
 let previousScene;
@@ -128,7 +129,7 @@ function render(){
  if(!current)return;svg.replaceChildren();const mode=document.querySelector('#view').value;
  document.querySelector('#construction-options').hidden=mode!=='construction';
  if(mode==='construction'){renderConstruction();return;}
- const views=mode==='sheet'?['front','right','top','cavalier']:mode==='all'?['front','right','top','cavalier','isometric','back','left','bottom']:[mode];
+ const views=mode==='sheet'?['front','right','top','cavalier']:mode==='sheet3'?['front','top','cavalier']:mode==='all'?['front','right','top','cavalier','isometric','back','left','bottom']:[mode];
  const multiple=views.length>1;
  const slots=views.map((_,i)=>multiple&&i>=3?i+1:i);
  const cols=multiple?2:1,rows=Math.ceil((views.length+(multiple?1:0))/cols);
@@ -152,7 +153,7 @@ function render(){
   edges.sort((a,b)=>Number(a.visible)-Number(b.visible));edges.forEach(e=>{if(!e.visible&&!document.querySelector('#hidden').checked)return;if(Math.hypot(e.a[0]-e.b[0],e.a[1]-e.b[1])<.01)return;line(e.a,e.b,{stroke:e.visible?'#394738':'#7c806a','stroke-width':e.visible?1.5:.8,'stroke-dasharray':e.visible?'none':'5 4'});});
   if(document.querySelector('#axes').checked){const o=[ox+35,oy+340];current[key][0].axes.slice(1).forEach((p,i)=>{if(Math.hypot(...p)<.01)return;const end=[o[0]+p[0]*.45,o[1]+p[1]*.45];line(o,end,{stroke:['#b77565','#729d77','#6c8daa'][i],'stroke-width':1});g.append(node('text',{x:end[0]+4,y:end[1]-4,fill:'#718474','font-size':10},['x','y','z'][i]));});}
  });
- if(multiple){
+ if(multiple&&maps.front&&maps.top&&maps.right){
   paper.append(node('rect',{x:508,y:388,width:484,height:364,rx:8,fill:'white',stroke:'#e0e8e0'}));
   svg.append(node('text',{x:524,y:414,fill:'#42664d','font-size':14,'font-family':'sans-serif'},'Riporto della profondità · 45°'));
   const enabled=document.querySelector('#connections').checked;

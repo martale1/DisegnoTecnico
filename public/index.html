@@ -14,7 +14,8 @@
 <button type="button" data-scenario="row"><strong>Solidi affiancati</strong><span>Cubo, piramide e prisma distanziati</span></button>
 <button type="button" data-scenario="steps"><strong>Scalinata</strong><span>Tre blocchi vicini di altezze diverse</span></button>
 <button type="button" data-scenario="house"><strong>Casa e torre</strong><span>Un tetto sul blocco, una torre accanto</span></button>
-<button type="button" data-scenario="hexbox"><strong>Esagono sul parallelepipedo</strong><span>Prisma esagonale impilato su un blocco</span></button>
+<button type="button" data-scenario="hexbox"><strong>Esagono nel parallelepipedo</strong><span>Prisma esagonale che attraversa il blocco</span></button>
+<button type="button" data-scenario="hexstack"><strong>Esagono sul parallelepipedo</strong><span>Prisma esagonale appoggiato sul blocco</span></button>
 </div>
 <p class="hint">Carica una composizione e modifica liberamente i solidi. Lo scenario sostituisce la scena attuale.</p>
 <button type="button" id="undo-scenario" disabled>Ripristina scena precedente</button>
@@ -35,7 +36,7 @@
 <label>Rotazione su Z (°) <input name="rotation" type="number" min="-360" max="360" value="0" required></label>
 <label>Colore del solido <input id="color" type="color" value="#d5bb55"></label>
 <div class="section-title"><span>03</span><h2>Proiezione</h2></div>
-<label>Vista <select id="view"><option value="construction">Pianta → Cavaliera</option><option value="sheet">Tavola · 4 viste</option><option value="all" selected>Tutte · 8 viste</option><option value="front">Prospetto</option><option value="top">Pianta</option><option value="right">Profilo destro</option><option value="left">Profilo sinistro</option><option value="back">Retro</option><option value="bottom">Dal basso</option><option value="cavalier">Cavaliera</option><option value="isometric">Isometrica</option></select></label>
+<label>Vista <select id="view"><option value="construction">Pianta → Cavaliera</option><option value="sheet3">Tavola · 3 viste</option><option value="sheet">Tavola · 4 viste</option><option value="all" selected>Tutte · 8 viste</option><option value="front">Prospetto</option><option value="top">Pianta</option><option value="right">Profilo destro</option><option value="left">Profilo sinistro</option><option value="back">Retro</option><option value="bottom">Dal basso</option><option value="cavalier">Cavaliera</option><option value="isometric">Isometrica</option></select></label>
 <label>Angolo di fuga <output id="angle-value">45°</output></label><input name="angle" aria-label="Angolo di fuga" type="range" min="10" max="80" value="45">
 <label>Riduzione profondità <select name="reduction"><option value="0.5" selected>½ · Cavaliera ridotta</option><option value="0.75">¾ · Personalizzata</option><option value="1">1 · Cavaliera intera</option></select></label>
 <label class="check"><input id="hidden" type="checkbox" checked> Spigoli nascosti</label><label class="check"><input id="axes" type="checkbox" checked> Assi di riferimento</label>
